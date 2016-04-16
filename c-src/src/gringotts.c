@@ -53,17 +53,17 @@
 /* appends a stock item to a toolbar */
 #define	TOOLBAR_INS_STOCK(tbar, stock, callback, tooltip) \
 	grg_toolbar_insert_stock (GTK_TOOLBAR (tbar), stock, tooltip, \
-		(GtkSignalFunc) callback, NULL, -1)
+		(GCallback) callback, NULL, -1)
 
 /* appends a stock item to a toolbar, assigning it to a widget */
 #define	TOOLBAR_INS_STOCK_WIDGET(tbar, stock, callback, tooltip, wid) \
 	wid = grg_toolbar_insert_stock (GTK_TOOLBAR (tbar), stock, tooltip, \
-		(GtkSignalFunc) callback, NULL, -1)
+		(GCallback) callback, NULL, -1)
 
 /* appends a stock item to a toolbar, assigning it to a widget and passing a value to the callback */
 #define	TOOLBAR_INS_STOCK_WIDGET_SIGNAL(tbar, stock, callback, tooltip, signal, wid) \
 	wid = grg_toolbar_insert_stock (GTK_TOOLBAR (tbar), stock, tooltip, \
-		(GtkSignalFunc) callback, GINT_TO_POINTER (signal), -1)
+		(GCallback) callback, GINT_TO_POINTER (signal), -1)
 
 /* appends a space to a toolbar */
 #define TOOLBAR_INS_SPACE(tbar) \
@@ -1583,7 +1583,7 @@ grg_interface (void)
 	/* the "navigation" lateral toolbar */
 	tbar_nav = gtk_toolbar_new ();
 	gtk_toolbar_set_style (GTK_TOOLBAR (tbar_nav), GTK_TOOLBAR_ICONS);
-	gtk_toolbar_set_orientation (GTK_TOOLBAR (tbar_nav),
+	gtk_orientable_set_orientation (GTK_ORIENTABLE (tbar_nav),
 				     GTK_ORIENTATION_VERTICAL);
 	handle_nav = gtk_handle_box_new ();
 	gtk_handle_box_set_handle_position (GTK_HANDLE_BOX (handle_nav),
@@ -1809,7 +1809,7 @@ grg_interface (void)
 
 void tray_icon_on_click(GtkStatusIcon *status_icon, gpointer user_data)
 {
-	if(gdk_window_get_state(GTK_WIDGET(win1)->window)==1 ||gdk_window_get_state(GTK_WIDGET(win1)->window)==2) {
+	if(gtk_widget_get_visible(GTK_WIDGET(win1))) {
 		/* The window is either iconified, or on another workspace */
 		gtk_widget_show_all(win1);
 		gtk_window_deiconify(GTK_WINDOW(win1));
@@ -1848,7 +1848,7 @@ GtkStatusIcon *create_tray_icon(void)
 	tray_icon = gtk_status_icon_new();
 	GdkPixbuf *gp = gdk_pixbuf_new_from_xpm_data (gringotts_xpm);
 	gtk_status_icon_set_from_pixbuf(tray_icon, gp);
-	gtk_status_icon_set_tooltip(tray_icon, "Gringotts");
+	gtk_status_icon_set_tooltip_text(tray_icon, "Gringotts");
 	gtk_status_icon_set_visible(tray_icon, TRUE);
 	g_object_unref (G_OBJECT (gp));
 
@@ -1884,7 +1884,7 @@ void tray_icon_init(void)
 	gtk_widget_show_all (menu);
 
 	/* other signal-handler for left/right-click on the icon itself */
-	g_signal_connect(GTK_STATUS_ICON (tray_icon), "popup-menu", GTK_SIGNAL_FUNC (trayIconPopup), menu);
+	g_signal_connect(GTK_STATUS_ICON (tray_icon), "popup-menu", G_CALLBACK (trayIconPopup), menu);
 	g_signal_connect(G_OBJECT(tray_icon), "activate", G_CALLBACK(tray_icon_on_click), NULL);
 }
 
